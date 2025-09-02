@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Bounds Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .map-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #005a8a;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSV Bounds Viewer</h1>
+        
+        <div class="input-section">
+            <div class="info">
+                Paste your CSV data with columns: granule_id, north_lat, south_lat, west_lon, east_lon
+            </div>
+            <textarea id="csvInput" placeholder="granule_id,north_lat,south_lat,west_lon,east_lon
+example_id_1,45.5,45.0,-122.5,-122.0
+example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
+            <button onclick="loadData()">Load Bounds on Map</button>
+            <button onclick="clearMap()">Clear Map</button>
+            <div id="status"></div>
+        </div>
+
+        <div class="map-section">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let boundsLayer;
+
+        // Initialize the map
+        function initMap() {
+            map = L.map('map').setView([40, -100], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            boundsLayer = L.layerGroup().addTo(map);
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function clearMap() {
+            boundsLayer.clearLayers();
+            showStatus('Map cleared', 'success');
+        }
+
+        function loadData() {
+            const csvText = document.getElementById('csvInput').value.trim();
+            
+            if (!csvText) {
+                showStatus('Please paste CSV data first', 'error');
+                return;
+            }
+
+            try {
+                const parsed = Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true
+                });
+
+                if (parsed.errors.length > 0) {
+                    showStatus('CSV parsing error: ' + parsed.errors[0].message, 'error');
+                    return;
+                }
+
+                const data = parsed.data;
+                if (data.length === 0) {
+                    showStatus('No data found in CSV', 'error');
+                    return;
+                }
+
+                // Clear existing bounds
+                boundsLayer.clearLayers();
+
+                let validBounds = 0;
+                let allBounds = [];
+
+                data.forEach(row => {
+                    const northLat = parseFloat(row.north_lat);
+                    const southLat = parseFloat(row.south_lat);
+                    const westLon = parseFloat(row.west_lon);
+                    const eastLon = parseFloat(row.east_lon);
+                    const granuleId = row.granule_id;
+
+                    // Validate coordinates
+                    if (isNaN(northLat) || isNaN(southLat) || isNaN(westLon) || isNaN(eastLon)) {
+                        return;
+                    }
+
+                    // Create rectangle bounds
+                    const bounds = [
+                        [southLat, westLon],
+                        [northLat, eastLon]
+                    ];
+
+                    // Create rectangle with popup
+                    const rectangle = L.rectangle(bounds, {
+                        color: '#007cba',
+                        weight: 1,
+                        fillOpacity: 0.1
+                    });
+
+                    rectangle.bindPopup(`
+                        <strong>Granule:</strong> ${granuleId}<br>
+                        <strong>North:</strong> ${northLat}°<br>
+                        <strong>South:</strong> ${southLat}°<br>
+                        <strong>West:</strong> ${westLon}°<br>
+                        <strong>East:</strong> ${eastLon}°
+                    `);
+
+                    boundsLayer.addLayer(rectangle);
+                    allBounds.push(bounds);
+                    validBounds++;
+                });
+
+                if (validBounds === 0) {
+                    showStatus('No valid bounds found in data', 'error');
+                    return;
+                }
+
+                // Fit map to show all bounds
+                if (allBounds.length > 0) {
+                    const group = new L.featureGroup(boundsLayer.getLayers());
+                    map.fitBounds(group.getBounds(), { padding: [20, 20] });
+                }
+
+                showStatus(`Successfully loaded ${validBounds} bounds on the map`, 'success');
+
+            } catch (error) {
+                showStatus('Error processing CSV: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize map when page loads
+        window.onload = function() {
+            initMap();
+        };
+    </script>
+</body>
+</html>
