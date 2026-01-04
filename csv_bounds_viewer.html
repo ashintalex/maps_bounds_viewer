@@ -11,29 +11,32 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f5f5f5;
+            overflow: hidden;
         }
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
         }
-        .input-section {
+        .control-panel {
+            width: 25%;
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
         }
         .map-section {
+            width: 75%;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         textarea {
             width: 100%;
-            height: 150px;
+            height: 200px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -50,6 +53,7 @@
             cursor: pointer;
             font-size: 14px;
             margin-top: 10px;
+            width: 100%;
         }
         button:hover {
             background-color: #005a8a;
@@ -59,7 +63,7 @@
             cursor: not-allowed;
         }
         #map {
-            height: 600px;
+            height: 100%;
             width: 100%;
         }
         .status {
@@ -79,29 +83,88 @@
         }
         h1 {
             color: #333;
+            margin-top: 0;
             margin-bottom: 20px;
+            font-size: 24px;
         }
         .info {
             color: #666;
             font-size: 14px;
             margin-bottom: 10px;
         }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .button-group button {
+            flex: 1;
+        }
+        .bounds-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .bounds-info h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .info-value {
+            color: #007cba;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>CSV Bounds Viewer</h1>
-        
-        <div class="input-section">
+        <div class="control-panel">
+            <h1>CSV Bounds Viewer</h1>
+            
             <div class="info">
                 Paste your CSV data with columns: granule_id, north_lat, south_lat, west_lon, east_lon
             </div>
             <textarea id="csvInput" placeholder="granule_id,north_lat,south_lat,west_lon,east_lon
 example_id_1,45.5,45.0,-122.5,-122.0
 example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
-            <button onclick="loadData()">Load Bounds on Map</button>
-            <button onclick="clearMap()">Clear Map</button>
+            
+            <div class="button-group">
+                <button onclick="loadData()">Load Bounds</button>
+                <button onclick="clearMap()">Clear Map</button>
+            </div>
+            
             <div id="status"></div>
+            
+            <div class="bounds-info" id="boundsInfo" style="display: none;">
+                <h2>Bounds Information</h2>
+                <div class="info-item">
+                    <span class="info-label">Midpoint:</span><br>
+                    <span class="info-value" id="midpointInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Area (km²):</span><br>
+                    <span class="info-value" id="areaInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Width (km):</span><br>
+                    <span class="info-value" id="widthInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Height (km):</span><br>
+                    <span class="info-value" id="heightInfo">-</span>
+                </div>
+            </div>
         </div>
 
         <div class="map-section">
@@ -131,7 +194,39 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
 
         function clearMap() {
             boundsLayer.clearLayers();
+            document.getElementById('boundsInfo').style.display = 'none';
             showStatus('Map cleared', 'success');
+        }
+
+        // Calculate distance between two points using Haversine formula (in km)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function updateBoundsInfo(northLat, southLat, westLon, eastLon) {
+            // Calculate midpoint
+            const midLat = (northLat + southLat) / 2;
+            const midLon = (westLon + eastLon) / 2;
+            
+            // Calculate dimensions
+            const height = calculateDistance(southLat, westLon, northLat, westLon);
+            const width = calculateDistance(midLat, westLon, midLat, eastLon);
+            const area = height * width;
+            
+            // Update UI
+            document.getElementById('midpointInfo').textContent = 
+                `${midLat.toFixed(6)}°, ${midLon.toFixed(6)}°`;
+            document.getElementById('areaInfo').textContent = area.toFixed(2);
+            document.getElementById('widthInfo').textContent = width.toFixed(2);
+            document.getElementById('heightInfo').textContent = height.toFixed(2);
+            document.getElementById('boundsInfo').style.display = 'block';
         }
 
         function loadData() {
@@ -212,7 +307,15 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
                 // Fit map to show all bounds
                 if (allBounds.length > 0) {
                     const group = new L.featureGroup(boundsLayer.getLayers());
-                    map.fitBounds(group.getBounds(), { padding: [20, 20] });
+                    const mapBounds = group.getBounds();
+                    map.fitBounds(mapBounds, { padding: [20, 20] });
+                    
+                    // Update bounds info with the combined bounds
+                    const north = mapBounds.getNorth();
+                    const south = mapBounds.getSouth();
+                    const west = mapBounds.getWest();
+                    const east = mapBounds.getEast();
+                    updateBoundsInfo(north, south, west, east);
                 }
 
                 showStatus(`Successfully loaded ${validBounds} bounds on the map`, 'success');
@@ -225,6 +328,13 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
         // Initialize map when page loads
         window.onload = function() {
             initMap();
+            
+            // Auto-load the specified area
+            const autoLoadData = `granule_id,north_lat,south_lat,west_lon,east_lon
+specified_area,45.43360417128909,45.296389684940266,8.993144532517837,9.141464063463546`;
+            
+            document.getElementById('csvInput').value = autoLoadData;
+            loadData();
         };
     </script>
 </body>
