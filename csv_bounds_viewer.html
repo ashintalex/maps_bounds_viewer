@@ -20,8 +20,39 @@
             height: 100vh;
             width: 100vw;
         }
+        .tools-panel {
+            width: 5%;
+            min-width: 60px;
+            background: #2c3e50;
+            padding: 10px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+        .tool-button {
+            width: 50px;
+            height: 50px;
+            background: #34495e;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background-color 0.2s;
+        }
+        .tool-button:hover {
+            background: #2980b9;
+        }
+        .tool-button.active {
+            background: #e74c3c;
+        }
         .control-panel {
-            width: 25%;
+            width: 20%;
             background: white;
             padding: 20px;
             overflow-y: auto;
@@ -33,6 +64,9 @@
             width: 75%;
             background: white;
             overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         textarea {
             width: 100%;
@@ -65,6 +99,7 @@
         #map {
             height: 100%;
             width: 100%;
+            flex: 1;
         }
         .status {
             margin-top: 10px;
@@ -125,10 +160,43 @@
             color: #007cba;
             font-family: monospace;
         }
+        .click-marker div {
+            background: #ff6b35;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            line-height: 22px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 1s infinite;
+        }
+        .click-marker.first-click div {
+            background: #e74c3c;
+        }
+        .click-marker.second-click div {
+            background: #27ae60;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="tools-panel">
+            <button class="tool-button" id="drawSquareBtn" title="Draw Rectangle AOI">
+                <span>⬜</span>
+            </button>
+            <button class="tool-button" id="viewBoundsBtn" title="View Bounds">
+                <span>📐</span>
+            </button>
+        </div>
         <div class="control-panel">
             <h1>CSV Bounds Viewer</h1>
             
@@ -175,15 +243,49 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
     <script>
         let map;
         let boundsLayer;
+        let drawingMode = false;
+        let drawingRectangle = null;
+        let startPoint = null;
+        let clickMarkers = []; // Store click point markers
 
         // Initialize the map
         function initMap() {
-            map = L.map('map').setView([40, -100], 4);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+            const mapElement = document.getElementById('map');
+            if (!mapElement) {
+                console.error('Map element not found!');
+                alert('Map element not found in the DOM');
+                return;
+            }
+            
+            console.log('Map element found:', mapElement);
+            console.log('Map element size:', mapElement.clientWidth, 'x', mapElement.clientHeight);
+            
+            try {
+                map = L.map('map').setView([40, -100], 4);
+                console.log('Leaflet map created successfully');
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                console.log('Tile layer added successfully');
+            } catch(error) {
+                console.error('Error initializing map:', error);
+                alert('Error initializing map: ' + error.message);
+            }
             
             boundsLayer = L.layerGroup().addTo(map);
+            
+            // Add drawing event listeners to map container
+            map.getContainer().addEventListener('click', function(e) {
+                // Prevent event bubbling and default behavior
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Use Leaflet's built-in method for accurate coordinate conversion
+                const latlng = map.mouseEventToLatLng(e);
+                
+                handleMapClick({ latlng: latlng });
+            });
         }
 
         function showStatus(message, type) {
@@ -193,8 +295,34 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
         }
 
         function clearMap() {
+            // Clear all layers
             boundsLayer.clearLayers();
+            
+            // Remove drawing rectangle if it exists
+            if (drawingRectangle) {
+                map.removeLayer(drawingRectangle);
+                drawingRectangle = null;
+            }
+            
+            // Remove click markers
+            clickMarkers.forEach(marker => map.removeLayer(marker));
+            clickMarkers = [];
+            
+            // Reset drawing state
+            startPoint = null;
+            drawingMode = false;
+            document.getElementById('drawSquareBtn').classList.remove('active');
+            map.getContainer().style.cursor = '';
+            
+            // Hide bounds info
             document.getElementById('boundsInfo').style.display = 'none';
+            
+            // Clear ALL text from CSV input (not just reset to original data)
+            document.getElementById('csvInput').value = '';
+            
+            // Reset map view to initial position
+            map.setView([40, -100], 4);
+            
             showStatus('Map cleared', 'success');
         }
 
@@ -227,6 +355,157 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
             document.getElementById('widthInfo').textContent = width.toFixed(2);
             document.getElementById('heightInfo').textContent = height.toFixed(2);
             document.getElementById('boundsInfo').style.display = 'block';
+        }
+
+        function updateCsvInputWithDrawnBounds(northLat, southLat, westLon, eastLon) {
+            // Generate a unique granule ID
+            const timestamp = new Date().getTime();
+            const granuleId = `drawn_aoi_${timestamp}`;
+            
+            // Create CSV entry
+            const csvEntry = `${granuleId},${northLat.toFixed(6)},${southLat.toFixed(6)},${westLon.toFixed(6)},${eastLon.toFixed(6)}`;
+            
+            // Get current CSV input
+            const csvInput = document.getElementById('csvInput');
+            const currentContent = csvInput.value.trim();
+            
+            // Check if there's already a header
+            let newContent;
+            if (currentContent.includes('granule_id,north_lat,south_lat,west_lon,east_lon')) {
+                // Header exists, append the new entry
+                newContent = currentContent + '\n' + csvEntry;
+            } else {
+                // No header, add header and entry
+                newContent = `granule_id,north_lat,south_lat,west_lon,east_lon\n${csvEntry}`;
+            }
+            
+            // Update the CSV input
+            csvInput.value = newContent;
+        }
+
+        // Tool functions
+        function toggleDrawSquare() {
+            const btn = document.getElementById('drawSquareBtn');
+            drawingMode = !drawingMode;
+            
+            if (drawingMode) {
+                btn.classList.add('active');
+                map.getContainer().style.cursor = 'crosshair';
+                showStatus('Click on the map to set the first corner, then click again for the opposite corner', 'success');
+            } else {
+                btn.classList.remove('active');
+                map.getContainer().style.cursor = '';
+                if (drawingRectangle) {
+                    map.removeLayer(drawingRectangle);
+                    drawingRectangle = null;
+                }
+                // Remove click markers
+                clickMarkers.forEach(marker => map.removeLayer(marker));
+                clickMarkers = [];
+                startPoint = null;
+                showStatus('Drawing mode disabled', 'success');
+            }
+        }
+
+        function toggleViewBounds() {
+            const boundsInfo = document.getElementById('boundsInfo');
+            if (boundsInfo.style.display === 'none' || boundsInfo.style.display === '') {
+                boundsInfo.style.display = 'block';
+                showStatus('Bounds information displayed', 'success');
+            } else {
+                boundsInfo.style.display = 'none';
+                showStatus('Bounds information hidden', 'success');
+            }
+        }
+
+        function handleMapClick(e) {
+            if (!drawingMode) return;
+            
+            if (!startPoint) {
+                // First click - set start point and add marker
+                startPoint = e.latlng;
+                
+                // Add marker for first click point
+                const firstMarker = L.marker(e.latlng, {
+                    icon: L.divIcon({
+                        className: 'click-marker first-click',
+                        html: '<div>1</div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    })
+                }).addTo(map);
+                clickMarkers.push(firstMarker);
+                
+                showStatus('Click again to complete the rectangle', 'success');
+            } else {
+                // Second click - create rectangle
+                const endPoint = e.latlng;
+                
+                // Add marker for second click point
+                const secondMarker = L.marker(e.latlng, {
+                    icon: L.divIcon({
+                        className: 'click-marker second-click',
+                        html: '<div>2</div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    })
+                }).addTo(map);
+                clickMarkers.push(secondMarker);
+                
+                // Calculate rectangle bounds using the two corner points
+                const north = Math.max(startPoint.lat, endPoint.lat);
+                const south = Math.min(startPoint.lat, endPoint.lat);
+                const east = Math.max(startPoint.lng, endPoint.lng);
+                const west = Math.min(startPoint.lng, endPoint.lng);
+                
+                // Create rectangle bounds
+                const bounds = [
+                    [south, west],
+                    [north, east]
+                ];
+                
+                // Remove previous drawing rectangle if exists
+                if (drawingRectangle) {
+                    map.removeLayer(drawingRectangle);
+                }
+                
+                // Create and add the rectangle
+                drawingRectangle = L.rectangle(bounds, {
+                    color: '#ff6b35',
+                    weight: 4,
+                    fillOpacity: 0.4,
+                    dashArray: '10, 5',
+                    fillColor: '#ff6b35'
+                });
+                
+                drawingRectangle.addTo(boundsLayer); // Add to boundsLayer so it gets cleared with clearMap
+                
+                // Add popup with bounds information
+                const timestamp = new Date().getTime();
+                const granuleId = `drawn_aoi_${timestamp}`;
+                drawingRectangle.bindPopup(`
+                    <strong>Drawn AOI:</strong> ${granuleId}<br>
+                    <strong>North:</strong> ${north.toFixed(6)}°<br>
+                    <strong>South:</strong> ${south.toFixed(6)}°<br>
+                    <strong>West:</strong> ${west.toFixed(6)}°<br>
+                    <strong>East:</strong> ${east.toFixed(6)}°
+                `);
+                
+                // Update bounds info
+                updateBoundsInfo(north, south, west, east);
+                
+                // Populate CSV input with drawn bounds
+                updateCsvInputWithDrawnBounds(north, south, west, east);
+                
+                // Remove click markers
+                clickMarkers.forEach(marker => map.removeLayer(marker));
+                clickMarkers = [];
+                
+                // Reset drawing mode
+                toggleDrawSquare();
+                
+                showStatus('Rectangle AOI created! Bounds information updated.', 'success');
+            }
         }
 
         function loadData() {
@@ -328,6 +607,10 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
         // Initialize map when page loads
         window.onload = function() {
             initMap();
+            
+            // Add tool button event listeners
+            document.getElementById('drawSquareBtn').addEventListener('click', toggleDrawSquare);
+            document.getElementById('viewBoundsBtn').addEventListener('click', toggleViewBounds);
             
             // Auto-load the specified area
             const autoLoadData = `granule_id,north_lat,south_lat,west_lon,east_lon

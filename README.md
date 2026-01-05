@@ -7,14 +7,21 @@ A simple web-based tool to visualize geographic bounding boxes on an interactive
 - Load CSV data with geographic bounds
 - Interactive map visualization with OpenStreetMap
 - Calculate area, width, height, and midpoint of bounds
-- Responsive layout with control panel and map viewer
+- **Tools Panel**: Draw custom rectangle Areas of Interest (AOI) directly on the map
+- **View Bounds**: Toggle display of bounds information
+- Responsive layout with tools panel, control panel, and map viewer
 
 ## Usage
 
 1. Open `csv_bounds_viewer.html` in your browser
-2. Paste CSV data in the left control panel
-3. Click "Load Bounds" to visualize on the map
-4. View bounds information including area and midpoint
+2. Use the **Tools Panel** on the left:
+   - Click the square icon (⬜) to enter drawing mode
+   - **First click**: Places a red numbered marker (1) on the map
+   - **Second click**: Places a green numbered marker (2) and creates the rectangle AOI between the two points
+   - The drawn bounds will automatically appear in the CSV input area
+   - Click the ruler icon (📐) to show/hide bounds information
+3. Alternatively, paste CSV data in the control panel and click "Load Bounds"
+4. View bounds information including area, width, height, and midpoint
 
 ## CSV Format
 
