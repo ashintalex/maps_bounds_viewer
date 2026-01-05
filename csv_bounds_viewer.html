@@ -70,7 +70,7 @@
         }
         textarea {
             width: 100%;
-            height: 200px;
+            height: 400px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -148,6 +148,246 @@
             font-size: 18px;
             color: #333;
         }
+        .enmap-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+        }
+        .enmap-section h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #004085;
+        }
+        .enmap-section h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #004085;
+        }
+        .query-params {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .param-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+        .param-group input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .enmap-btn {
+            background-color: #0066cc;
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+        .enmap-btn:hover {
+            background-color: #0052a3;
+        }
+        .enmap-btn:disabled {
+            background-color: #ccc;
+        }
+        .enmap-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .enmap-status.loading {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .enmap-status.success {
+            background-color: #c8e6c9;
+            color: #1b5e20;
+        }
+        .enmap-status.error {
+            background-color: #ffcdd2;
+            color: #b71c1c;
+        }
+        .results-container {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+        }
+        .results-info {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .results-table {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .results-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .results-table th {
+            background-color: #e3f2fd;
+            padding: 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #004085;
+            border-bottom: 2px solid #90caf9;
+        }
+        .results-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        .results-table input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #0066cc;
+        }
+        .results-table th:first-child {
+            width: 40px;
+            text-align: center;
+        }
+        .results-table td:first-child {
+            text-align: center;
+        }
+        .results-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .download-link {
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        .download-link:hover {
+            background-color: #fff3cd;
+        }
+        .preview-link {
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+            background: none;
+            border: none;
+        }
+        .preview-link:hover {
+            background-color: #e3f2fd;
+        }
+        .preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s;
+        }
+        .preview-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .preview-modal-image {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+        }
+        .preview-modal-title {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #333;
+            word-break: break-all;
+        }
+        .preview-modal-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            background: white;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .preview-modal-close:hover {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .download-link:hover {
+            background-color: #fff3cd;
+        }
+        .export-btn {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+        .export-btn:hover {
+            background-color: #218838;
+        }
+        .results-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .results-buttons button {
+            flex: 1;
+            margin-top: 0;
+        }
+        .download-all-btn {
+            background-color: #fd7e14;
+        }
+        .download-all-btn:hover {
+            background-color: #e06c00;
+        }
         .info-item {
             margin-bottom: 10px;
             font-size: 13px;
@@ -209,6 +449,7 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
             
             <div class="button-group">
                 <button onclick="loadData()">Load Bounds</button>
+                <button onclick="exportBoundsCSV()">Export CSV</button>
                 <button onclick="clearMap()">Clear Map</button>
             </div>
             
@@ -233,10 +474,55 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
                     <span class="info-value" id="heightInfo">-</span>
                 </div>
             </div>
+
+            <div class="enmap-section">
+                <h2>EnMAP Query</h2>
+                <div class="info">
+                    Query EnMAP satellite data availability for your bounds
+                </div>
+                
+                <div class="query-params">
+                    <div class="param-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate" value="2024-01-01">
+                    </div>
+                    <div class="param-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate" value="2026-01-05">
+                    </div>
+                    <div class="param-group">
+                        <label for="maxItems">Max Items:</label>
+                        <input type="number" id="maxItems" value="50" min="1" max="500">
+                    </div>
+                </div>
+                
+                <button onclick="queryEnMAP()" class="enmap-btn">Query EnMAP</button>
+                
+                <div id="enmap-status" class="enmap-status"></div>
+                
+                <div id="results-container" class="results-container" style="display: none;">
+                    <h3>Query Results</h3>
+                    <div id="results-info" class="results-info"></div>
+                    <div id="results-table" class="results-table"></div>
+                    <div class="results-buttons">
+                        <button onclick="downloadAllEnMAPScenes()" class="download-all-btn">Download Selected</button>
+                        <button onclick="exportEnMAPResults()" class="export-btn">📊 Export Results</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="map-section">
             <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+        <div class="preview-modal-content">
+            <button class="preview-modal-close" onclick="closePreview()">&times;</button>
+            <img id="previewImage" class="preview-modal-image" alt="Preview">
+            <div id="previewTitle" class="preview-modal-title"></div>
         </div>
     </div>
 
@@ -416,6 +702,13 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
                 boundsInfo.style.display = 'none';
                 showStatus('Bounds information hidden', 'success');
             }
+            
+            // Invalidate map size after layout change
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 100);
         }
 
         function handleMapClick(e) {
@@ -506,6 +799,28 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
                 
                 showStatus('Rectangle AOI created! Bounds information updated.', 'success');
             }
+        }
+
+        function exportBoundsCSV() {
+            const csvText = document.getElementById('csvInput').value.trim();
+            
+            if (!csvText) {
+                showStatus('No bounds to export', 'error');
+                return;
+            }
+            
+            // Create blob and download
+            const blob = new Blob([csvText], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `bounds_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showStatus('Bounds exported as CSV', 'success');
         }
 
         function loadData() {
@@ -604,20 +919,351 @@ example_id_2,46.0,45.5,-123.0,-122.5"></textarea>
             }
         }
 
+        // Store EnMAP results globally
+        let enMapResults = [];
+
+        function queryEnMAP() {
+            const csvText = document.getElementById('csvInput').value.trim();
+            
+            if (!csvText) {
+                showEnMAPStatus('Please load bounds first', 'error');
+                return;
+            }
+
+            // Parse the first bounds from CSV
+            const lines = csvText.split('\n').slice(1).filter(l => l.trim());
+            if (lines.length === 0) {
+                showEnMAPStatus('No bounds data found', 'error');
+                return;
+            }
+
+            const parts = lines[0].split(',').map(s => s.trim());
+            if (parts.length < 5) {
+                showEnMAPStatus('Invalid bounds format', 'error');
+                return;
+            }
+
+            const north = parseFloat(parts[1]);
+            const south = parseFloat(parts[2]);
+            const west = parseFloat(parts[3]);
+            const east = parseFloat(parts[4]);
+
+            if (isNaN(north) || isNaN(south) || isNaN(west) || isNaN(east)) {
+                showEnMAPStatus('Invalid coordinate values', 'error');
+                return;
+            }
+
+            // Get query parameters
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const maxItems = parseInt(document.getElementById('maxItems').value);
+
+            if (!startDate || !endDate) {
+                showEnMAPStatus('Please select start and end dates', 'error');
+                return;
+            }
+
+            // Show loading status
+            showEnMAPStatus('Querying EnMAP data...', 'loading');
+            document.getElementById('queryBtn').disabled = true;
+
+            // Prepare request
+            const bounds = [west, south, east, north]; // [min_lon, min_lat, max_lon, max_lat]
+            const datetime = `${startDate}/${endDate}`;
+
+            // Make API request
+            fetch('/api/query-enmap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    bounds: bounds,
+                    datetime: datetime,
+                    max_items: maxItems
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('queryBtn').disabled = false;
+
+                if (data.error) {
+                    showEnMAPStatus('Query error: ' + data.error, 'error');
+                    return;
+                }
+
+                enMapResults = data.items || [];
+
+                if (data.count === 0) {
+                    showEnMAPStatus('No EnMAP scenes found for your bounds and date range', 'success');
+                    document.getElementById('results-container').style.display = 'none';
+                    return;
+                }
+
+                showEnMAPStatus(`Found ${data.count} EnMAP scenes`, 'success');
+                displayEnMAPResults(data.items);
+                document.getElementById('results-container').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('queryBtn').disabled = false;
+                showEnMAPStatus('Connection error: ' + error.message, 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        function showEnMAPStatus(message, type) {
+            const statusEl = document.getElementById('enmap-status');
+            statusEl.textContent = message;
+            statusEl.className = `enmap-status ${type}`;
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    if (statusEl.textContent === message) {
+                        statusEl.textContent = '';
+                        statusEl.className = 'enmap-status';
+                    }
+                }, 5000);
+            }
+        }
+
+        function displayEnMAPResults(items) {
+            const resultsInfo = document.getElementById('results-info');
+            const resultsTable = document.getElementById('results-table');
+
+            resultsInfo.innerHTML = `<strong>Results:</strong> ${items.length} scenes found`;
+
+            let html = '<table><thead><tr><th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>Scene ID</th><th>Date</th><th>Cloud Cover</th><th>Preview</th><th>Download</th></tr></thead><tbody>';
+
+            items.forEach((item, index) => {
+                const date = item.datetime ? item.datetime.split('T')[0] : '-';
+                let cloudCover = '-';
+                if (item.cloud_cover !== null && item.cloud_cover !== undefined) {
+                    const numValue = parseFloat(item.cloud_cover);
+                    if (!isNaN(numValue)) {
+                        cloudCover = numValue.toFixed(1) + '%';
+                    }
+                }
+                
+                let previewBtn = '-';
+                const availableAssets = item.available_assets ? item.available_assets.join(', ') : 'unknown';
+                
+                if (item.preview_url) {
+                    const previewId = `preview-btn-${index}`;
+                    previewBtn = `<button id="${previewId}" class="preview-link" title="View preview thumbnail">🖼️</button>`;
+                } else {
+                    previewBtn = `<span title="Preview not available. Available assets: ${availableAssets}">-</span>`;
+                }
+                
+                let downloadBtn = '-';
+                if (item.data_url) {
+                    downloadBtn = `<a href="${item.data_url}" target="_blank" class="download-link" title="Download scene data">📥</a>`;
+                } else {
+                    downloadBtn = '<span title="Download link not available. Available assets: ' + availableAssets + '">-</span>';
+                }
+                
+                const checkboxId = `scene-${index}`;
+                html += `<tr><td><input type="checkbox" id="${checkboxId}" class="scene-checkbox" data-index="${index}"></td><td>${item.id}</td><td>${date}</td><td>${cloudCover}</td><td>${previewBtn}</td><td>${downloadBtn}</td></tr>`;
+            });
+
+            html += '</tbody></table>';
+            resultsTable.innerHTML = html;
+            
+            // Add click handlers to preview buttons
+            items.forEach((item, index) => {
+                if (item.preview_url) {
+                    const previewBtn = document.getElementById(`preview-btn-${index}`);
+                    if (previewBtn) {
+                        previewBtn.addEventListener('click', () => {
+                            openPreview(item.preview_url, item.id);
+                        });
+                    }
+                }
+            });
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const sceneCheckboxes = document.querySelectorAll('.scene-checkbox');
+            sceneCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function getSelectedScenes() {
+            const sceneCheckboxes = document.querySelectorAll('.scene-checkbox:checked');
+            const selectedIndices = Array.from(sceneCheckboxes).map(checkbox => 
+                parseInt(checkbox.getAttribute('data-index'))
+            );
+            return enMapResults.filter((_, index) => selectedIndices.includes(index));
+        }
+
+        function openPreview(previewUrl, sceneId) {
+            if (!previewUrl) {
+                showEnMAPStatus('Preview URL not available for this scene', 'error');
+                return;
+            }
+
+            const modal = document.getElementById('previewModal');
+            const image = document.getElementById('previewImage');
+            const title = document.getElementById('previewTitle');
+            
+            if (!modal || !image || !title) {
+                console.error('Preview modal elements not found');
+                return;
+            }
+            
+            // Use proxy endpoint to bypass CORS issues
+            const proxyUrl = `/api/preview?url=${encodeURIComponent(previewUrl)}`;
+            
+            // Reset image before loading new one
+            image.onerror = () => {
+                console.error('Failed to load preview from URL:', previewUrl);
+                showEnMAPStatus('Preview image unavailable (URL may have expired or server unreachable)', 'error');
+                title.textContent = sceneId + ' (Preview unavailable)';
+                image.style.display = 'none';
+            };
+            
+            image.onload = () => {
+                showEnMAPStatus('Preview loaded successfully', 'success');
+                image.style.display = 'block';
+            };
+            
+            // Load through proxy to handle CORS
+            image.src = proxyUrl;
+            title.textContent = sceneId;
+            modal.classList.add('active');
+            
+            // Close modal on escape key
+            window.previewEscapeHandler = handlePreviewKeypress;
+            document.addEventListener('keydown', window.previewEscapeHandler);
+        }
+
+        function closePreview() {
+            const modal = document.getElementById('previewModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            if (window.previewEscapeHandler) {
+                document.removeEventListener('keydown', window.previewEscapeHandler);
+            }
+        }
+
+        function handlePreviewKeypress(e) {
+            if (e.key === 'Escape') {
+                closePreview();
+            }
+        }
+
+        // Close modal when clicking outside the image - will be set up in window.onload
+        function setupPreviewModal() {
+            const modal = document.getElementById('previewModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closePreview();
+                    }
+                });
+            }
+        }
+
+        function exportEnMAPResults() {
+            if (enMapResults.length === 0) {
+                showEnMAPStatus('No results to export', 'error');
+                return;
+            }
+
+            const jsonData = JSON.stringify(enMapResults, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `enmap_results_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showEnMAPStatus('Results exported as JSON', 'success');
+        }
+
+        function downloadAllEnMAPScenes() {
+            const selectedScenes = getSelectedScenes();
+
+            if (selectedScenes.length === 0) {
+                showEnMAPStatus('Please select scenes to download', 'error');
+                return;
+            }
+
+            // Count scenes with data URLs
+            const scenesWithData = selectedScenes.filter(item => item.data_url).length;
+            if (scenesWithData === 0) {
+                showEnMAPStatus('Selected scenes have no data URLs available', 'error');
+                return;
+            }
+
+            showEnMAPStatus(`Opening ${scenesWithData} download link(s)...`, 'loading');
+
+            // Open each selected data URL in a new tab
+            selectedScenes.forEach((item, index) => {
+                if (item.data_url) {
+                    // Stagger opening to avoid browser blocking
+                    setTimeout(() => {
+                        window.open(item.data_url, '_blank');
+                    }, index * 500);
+                }
+            });
+
+            setTimeout(() => {
+                showEnMAPStatus(`Opened ${scenesWithData} download link(s)`, 'success');
+            }, scenesWithData * 500 + 1000);
+        }
+
         // Initialize map when page loads
         window.onload = function() {
-            initMap();
-            
-            // Add tool button event listeners
-            document.getElementById('drawSquareBtn').addEventListener('click', toggleDrawSquare);
-            document.getElementById('viewBoundsBtn').addEventListener('click', toggleViewBounds);
-            
-            // Auto-load the specified area
-            const autoLoadData = `granule_id,north_lat,south_lat,west_lon,east_lon
+            try {
+                initMap();
+                
+                // Add tool button event listeners
+                const drawSquareBtn = document.getElementById('drawSquareBtn');
+                const viewBoundsBtn = document.getElementById('viewBoundsBtn');
+                if (drawSquareBtn) drawSquareBtn.addEventListener('click', toggleDrawSquare);
+                if (viewBoundsBtn) viewBoundsBtn.addEventListener('click', toggleViewBounds);
+                
+                // Get reference to query button - with error handling
+                const queryBtn = document.querySelector('.enmap-btn');
+                if (queryBtn) {
+                    queryBtn.id = 'queryBtn';
+                }
+                
+                // Setup preview modal
+                setupPreviewModal();
+                
+                // Add ResizeObserver to handle layout changes and invalidate map
+                const controlPanel = document.querySelector('.control-panel');
+                if (controlPanel && 'ResizeObserver' in window) {
+                    const resizeObserver = new ResizeObserver(() => {
+                        // Debounce map resize
+                        clearTimeout(window.mapResizeTimeout);
+                        window.mapResizeTimeout = setTimeout(() => {
+                            if (map) {
+                                map.invalidateSize();
+                            }
+                        }, 150);
+                    });
+                    resizeObserver.observe(controlPanel);
+                }
+                
+                // Auto-load the specified area
+                const autoLoadData = `granule_id,north_lat,south_lat,west_lon,east_lon
 specified_area,45.43360417128909,45.296389684940266,8.993144532517837,9.141464063463546`;
-            
-            document.getElementById('csvInput').value = autoLoadData;
-            loadData();
+                
+                const csvInput = document.getElementById('csvInput');
+                if (csvInput) {
+                    csvInput.value = autoLoadData;
+                    loadData();
+                }
+            } catch(error) {
+                console.error('Error in window.onload:', error);
+                alert('Error loading page: ' + error.message);
+            }
         };
     </script>
 </body>
